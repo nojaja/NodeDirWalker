@@ -1,22 +1,16 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
+const path = require('path');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-export default {
+module.exports = {
   mode: 'production',
   entry: './src/index.ts',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'index.js',
+    filename: 'dirwalker.bundle.js',
     library: {
-      type: 'module',
+      type: 'umd',
+      name: 'DirWalker',
     },
     clean: true,
-  },
-  experiments: {
-    outputModule: true,
   },
   resolve: {
     extensions: ['.ts', '.js'],

@@ -1,17 +1,21 @@
 {
-  "name": "dir-walker",
+  "name": "@nojaja/dirwalker",
   "version": "1.0.0",
   "description": "A lightweight, flexible directory walker utility for Node.js with pattern matching support",
-  "type": "module",
-  "main": "dist/index.js",
+  "type": "commonjs",
+  "main": "dist/dirwalker.bundle.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development",
+    "test": "jest --config jest.unit.config.js",
+    "test:ci": "jest --config jest.unit.config.js --coverage",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-    "lint": "eslint src/**/*.ts",
+    "lint": "eslint src/**/*.ts --config eslint.config.js",
     "type-check": "tsc --noEmit",
-    "clean": "node -e \"const fs=require('fs');fs.rmSync('dist',{recursive:true,force:true})\""
+    "clean": "node -e \"const fs=require('fs');fs.rmSync('dist',{recursive:true,force:true})\"",
+    "depcruise": "depcruise src --config .dependency-cruiser.js",
+    "docs": "typedoc --config typedoc.js"
   },
   "keywords": [
     "directory",
@@ -23,7 +27,7 @@
     "pattern-matching",
     "utility"
   ],
-  "author": "",
+  "author": "nojaja <free.riccia@gmail.com> (https://github.com/nojaja)",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -32,17 +36,24 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "dependencies": {},
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
-    "@types/jest": "^29.5.2",
+    "@types/jest": "^29.5.8",
     "@types/node": "^20.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
+    "@typescript-eslint/parser": "^8.18.2",
+    "dependency-cruiser": "^17.3.6",
+    "eslint": "^8.45.0",
+    "eslint-plugin-jsdoc": "^61.5.0",
+    "eslint-plugin-sonarjs": "^3.0.5",
     "jest": "^29.6.1",
     "prettier": "^3.0.0",
     "ts-jest": "^29.1.0",
     "ts-loader": "^9.5.0",
+    "typedoc": "^0.28.15",
+    "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "^5.3.3",
     "webpack": "^5.99.8",
     "webpack-cli": "^5.0.0"

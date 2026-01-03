@@ -1,18 +1,13 @@
-import { jest } from '@jest/globals';
 import path from 'path';
+import { DirWalker } from '../../src/DirWalker';
 
-// Create mock functions
-const mockReaddir = jest.fn();
-const mockStat = jest.fn();
+// Mock fs/promises module
+jest.mock('fs/promises');
 
-// Mock fs/promises module using unstable_mockModule for ESM compatibility
-jest.unstable_mockModule('fs/promises', () => ({
-  readdir: mockReaddir,
-  stat: mockStat,
-}));
-
-// Import after mocking
-const { DirWalker } = await import('../../src/DirWalker.js');
+// Get the mocked module
+import * as fsPromises from 'fs/promises';
+const mockReaddir = (fsPromises.readdir as jest.Mock);
+const mockStat = (fsPromises.stat as jest.Mock);
 
 describe('DirWalker', () => {
   const mockTargetPath = path.normalize('/mock/target');

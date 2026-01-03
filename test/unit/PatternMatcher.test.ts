@@ -1,5 +1,4 @@
-import { jest } from '@jest/globals';
-import { PatternMatcher } from '../../src/PatternMatcher.js';
+import { PatternMatcher } from '../../src/PatternMatcher';
 
 describe('PatternMatcher', () => {
   describe('constructor', () => {

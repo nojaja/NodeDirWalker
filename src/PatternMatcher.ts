@@ -6,7 +6,7 @@ export class PatternMatcher {
 
   /**
    * Creates a new PatternMatcher instance
-   * @param debug - Enable debug logging
+   * @param {boolean} debug - Enable debug logging
    */
   constructor(debug = false) {
     this.debug = debug;
@@ -14,9 +14,9 @@ export class PatternMatcher {
 
   /**
    * Tests if a text matches any of the provided patterns
-   * @param text - The text to test
-   * @param patterns - Array of regular expressions to match against
-   * @returns True if any pattern matches, false otherwise
+   * @param {string} text - The text to test
+   * @param {RegExp[]} patterns - Array of regular expressions to match against
+   * @returns {boolean} True if any pattern matches, false otherwise
    */
   match(text: string, patterns?: RegExp[]): boolean {
     return this.matchEx(text, patterns) !== null;
@@ -24,9 +24,9 @@ export class PatternMatcher {
 
   /**
    * Tests if a text matches any of the provided patterns and returns the matching pattern
-   * @param text - The text to test
-   * @param patterns - Array of regular expressions to match against
-   * @returns The matching RegExp or null if no match
+   * @param {string} text - The text to test
+   * @param {RegExp[]} patterns - Array of regular expressions to match against
+   * @returns {RegExp | null} The matching RegExp or null if no match
    */
   matchEx(text: string, patterns?: RegExp[]): RegExp | null {
     try {

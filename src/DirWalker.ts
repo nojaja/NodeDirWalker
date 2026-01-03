@@ -38,7 +38,7 @@ export class DirWalker {
 
   /**
    * Creates a new DirWalker instance
-   * @param debug - Enable debug logging. Default: false
+   * @param {boolean} debug - Enable debug logging. Default: false
    */
   constructor(debug = false) {
     this.debug = debug;
@@ -48,11 +48,11 @@ export class DirWalker {
 
   /**
    * Recursively walks through a directory and processes files matching the specified criteria
-   * @param targetPath - The root directory path to start walking from
-   * @param settings - Configuration object with exclude patterns
-   * @param fileCallback - Called for each matching file
-   * @param errCallback - Called when an error occurs
-   * @returns Promise that resolves to the total count of processed files
+   * @param {string} targetPath - The root directory path to start walking from
+   * @param {WalkSettings} settings - Configuration object with exclude patterns
+   * @param {FileCallback} fileCallback - Called for each matching file
+   * @param {ErrorCallback} errCallback - Called when an error occurs
+   * @returns {Promise<number>} Promise that resolves to the total count of processed files
    */
   async walk(
     targetPath: string,
@@ -71,6 +71,12 @@ export class DirWalker {
   /**
    * Internal recursive method for directory traversal
    * @private
+   * @param {string} targetPath - The current directory path being traversed
+   * @param {string} basePath - The original base path for calculating relative paths
+   * @param {WalkSettings} settings - Configuration object with exclude patterns
+   * @param {FileCallback} fileCallback - Called for each matching file
+   * @param {ErrorCallback} errCallback - Called when an error occurs
+   * @returns {Promise<void>}
    */
   private async _walk(
     targetPath: string,
@@ -88,49 +94,13 @@ export class DirWalker {
         const filePath = path.resolve(targetPath, file);
 
         try {
-          // Get file information
-          const stat = await fs.stat(filePath);
-
-          // Skip symbolic links to prevent infinite loops
-          if (stat.isSymbolicLink()) {
-            if (this.debug) {
-              console.debug(`シンボリックリンクをスキップ: ${filePath}`);
-            }
-            continue;
-          }
-
-          if (stat.isDirectory()) {
-            // Skip if directory matches exclude pattern
-            if (this.matcher.match(filePath, settings.excludeDirs)) {
-              continue;
-            }
-            // Recursively process subdirectory
-            await this._walk(filePath, basePath, settings, fileCallback, errCallback);
-          } else {
-            // Skip if file matches exclude pattern
-            if (this.matcher.match(filePath, settings.excludeExt)) {
-              continue;
-            }
-
-            // Increment counter and execute callback for file
-            this.counter++;
-            if (this.debug) {
-              console.debug(`ファイル発見: ${filePath}`);
-            }
-
-            // Calculate relative path
-            const relativePath = path.relative(basePath, filePath);
-
-            try {
-              await fileCallback(relativePath, settings);
-            } catch (error) {
-              this._handleError(
-                `ファイル処理エラー: ${filePath}`,
-                error as Error,
-                errCallback
-              );
-            }
-          }
+          await this._processEntry(
+            filePath,
+            basePath,
+            settings,
+            fileCallback,
+            errCallback
+          );
         } catch (error) {
           // Handle file stat errors
           this._handleError(
@@ -151,8 +121,114 @@ export class DirWalker {
   }
 
   /**
+   * Process a single file system entry (file or directory)
+   * @private
+   * @param {string} filePath - The path to the file system entry
+   * @param {string} basePath - The original base path for calculating relative paths
+   * @param {WalkSettings} settings - Configuration object with exclude patterns
+   * @param {FileCallback} fileCallback - Called for each matching file
+   * @param {ErrorCallback} errCallback - Called when an error occurs
+   * @returns {Promise<void>}
+   */
+  private async _processEntry(
+    filePath: string,
+    basePath: string,
+    settings: WalkSettings,
+    fileCallback: FileCallback,
+    errCallback?: ErrorCallback
+  ): Promise<void> {
+    // Get file information
+    const stat = await fs.stat(filePath);
+
+    // Skip symbolic links to prevent infinite loops
+    if (stat.isSymbolicLink()) {
+      if (this.debug) {
+        console.debug(`シンボリックリンクをスキップ: ${filePath}`);
+      }
+      return;
+    }
+
+    if (stat.isDirectory()) {
+      await this._processDirectory(filePath, basePath, settings, fileCallback, errCallback);
+    } else {
+      await this._processFile(filePath, basePath, settings, fileCallback, errCallback);
+    }
+  }
+
+  /**
+   * Process a directory entry
+   * @private
+   * @param {string} filePath - The directory path
+   * @param {string} basePath - The original base path for calculating relative paths
+   * @param {WalkSettings} settings - Configuration object with exclude patterns
+   * @param {FileCallback} fileCallback - Called for each matching file
+   * @param {ErrorCallback} errCallback - Called when an error occurs
+   * @returns {Promise<void>}
+   */
+  private async _processDirectory(
+    filePath: string,
+    basePath: string,
+    settings: WalkSettings,
+    fileCallback: FileCallback,
+    errCallback?: ErrorCallback
+  ): Promise<void> {
+    // Skip if directory matches exclude pattern
+    if (this.matcher.match(filePath, settings.excludeDirs)) {
+      return;
+    }
+    // Recursively process subdirectory
+    await this._walk(filePath, basePath, settings, fileCallback, errCallback);
+  }
+
+  /**
+   * Process a file entry
+   * @private
+   * @param {string} filePath - The file path
+   * @param {string} basePath - The original base path for calculating relative paths
+   * @param {WalkSettings} settings - Configuration object with exclude patterns
+   * @param {FileCallback} fileCallback - Called for each matching file
+   * @param {ErrorCallback} errCallback - Called when an error occurs
+   * @returns {Promise<void>}
+   */
+  private async _processFile(
+    filePath: string,
+    basePath: string,
+    settings: WalkSettings,
+    fileCallback: FileCallback,
+    errCallback?: ErrorCallback
+  ): Promise<void> {
+    // Skip if file matches exclude pattern
+    if (this.matcher.match(filePath, settings.excludeExt)) {
+      return;
+    }
+
+    // Increment counter and execute callback for file
+    this.counter++;
+    if (this.debug) {
+      console.debug(`ファイル発見: ${filePath}`);
+    }
+
+    // Calculate relative path
+    const relativePath = path.relative(basePath, filePath);
+
+    try {
+      await fileCallback(relativePath, settings);
+    } catch (error) {
+      this._handleError(
+        `ファイル処理エラー: ${filePath}`,
+        error as Error,
+        errCallback
+      );
+    }
+  }
+
+  /**
    * Helper method to handle errors
    * @private
+   * @param {string} message - Error message context
+   * @param {Error} error - The error object to handle
+   * @param {ErrorCallback} errCallback - Callback to invoke with the error
+   * @returns {void}
    */
   private _handleError(
     message: string,

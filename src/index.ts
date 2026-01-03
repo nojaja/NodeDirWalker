@@ -1,7 +1,6 @@
 /**
  * dir-walker: A lightweight directory walker utility for Node.js
- * 
- * @packageDocumentation
+ * @module dir-walker
  */
 
 export { DirWalker, default } from './DirWalker';
