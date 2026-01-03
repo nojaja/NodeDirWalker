@@ -1,5 +1,10 @@
 declare module '@nojaja/greputil' {
   /**
+   * Type alias for pattern input to RegExpArray static methods
+   */
+  type PatternInput = string | RegExp | (string | RegExp)[] | null;
+
+  /**
    * RegExpArray class for managing multiple regular expression patterns
    */
   export class RegExpArray {
@@ -42,7 +47,7 @@ declare module '@nojaja/greputil' {
      * @param patterns - Patterns to test (string, RegExp, array, or null)
      * @returns Two-dimensional array of matches or null
      */
-    static matchAll(str: string, patterns: string | RegExp | (string | RegExp)[] | null): string[][] | null;
+    static matchAll(str: string, patterns: PatternInput): string[][] | null;
     
     /**
      * Static method: returns first match result
@@ -50,7 +55,7 @@ declare module '@nojaja/greputil' {
      * @param patterns - Patterns to test (string, RegExp, array, or null)
      * @returns First match result or null
      */
-    static firstMatch(str: string, patterns: string | RegExp | (string | RegExp)[] | null): RegExpExecArray | null;
+    static firstMatch(str: string, patterns: PatternInput): RegExpExecArray | null;
     
     /**
      * Static method: tests if any pattern matches
@@ -58,7 +63,7 @@ declare module '@nojaja/greputil' {
      * @param patterns - Patterns to test (string, RegExp, array, or null)
      * @returns true if any pattern matches, false otherwise
      */
-    static test(str: string, patterns: string | RegExp | (string | RegExp)[] | null): boolean;
+    static test(str: string, patterns: PatternInput): boolean;
   }
 
   /**

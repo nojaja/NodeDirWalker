@@ -102,7 +102,7 @@ export class DirWalker {
         } catch (error) {
           // Handle file stat errors
           this._handleError(
-            `ファイル情報取得エラー: ${filePath}`,
+            `ファイル処理エラー: ${filePath}`,
             error as Error,
             errCallback
           );
@@ -143,7 +143,7 @@ export class DirWalker {
       if (this.debug) {
         console.debug(`シンボリックリンクをスキップ: ${filePath}`);
       }
-      return;
+      return;// シンボリックリンクは無視する
     }
 
     if (stat.isDirectory()) {
@@ -178,6 +178,7 @@ export class DirWalker {
       }
     }
     // Recursively process subdirectory
+    // ディレクトリの場合は再帰的に呼び出す
     await this._walk(filePath, basePath, settings, fileCallback, errCallback);
   }
 
@@ -216,7 +217,7 @@ export class DirWalker {
     const relativePath = path.relative(basePath, filePath);
 
     try {
-      await fileCallback(relativePath, settings);
+      await fileCallback(relativePath, settings);// ファイルならコールバックで通知
     } catch (error) {
       this._handleError(
         `ファイル処理エラー: ${filePath}`,
@@ -242,7 +243,7 @@ export class DirWalker {
     if (typeof errCallback === 'function') {
       errCallback(error);
     } else {
-      console.error(`${message}: ${error.message}`);
+      console.error(`${message}: ${error.message}`);// エラーが発生した場合はエラーログを出力
     }
   }
 }
