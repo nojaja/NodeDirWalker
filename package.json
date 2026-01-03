@@ -1,6 +1,6 @@
 {
   "name": "@nojaja/dirwalker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A lightweight, flexible directory walker utility for Node.js with pattern matching support",
   "type": "commonjs",
   "main": "dist/dirwalker.bundle.js",
@@ -31,8 +31,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/nojaja/NodeDirWalker.git"
   },
+  "bugs": {
+    "url": "https://github.com/nojaja/NodeDirWalker/issues"
+  },
+  "homepage": "https://github.com/nojaja/NodeDirWalker#readme",
   "engines": {
     "node": ">=18.0.0"
   },
