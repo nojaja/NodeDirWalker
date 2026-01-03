@@ -1,6 +1,6 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { PatternMatcher } from './PatternMatcher';
+import { RegExpArray } from '@nojaja/greputil';
 
 /**
  * Settings for directory walking
@@ -34,7 +34,6 @@ export type ErrorCallback = (error: Error) => void;
 export class DirWalker {
   private debug: boolean;
   private counter: number;
-  private matcher: PatternMatcher;
 
   /**
    * Creates a new DirWalker instance
@@ -43,7 +42,6 @@ export class DirWalker {
   constructor(debug = false) {
     this.debug = debug;
     this.counter = 0;
-    this.matcher = new PatternMatcher(debug);
   }
 
   /**
@@ -173,8 +171,11 @@ export class DirWalker {
     errCallback?: ErrorCallback
   ): Promise<void> {
     // Skip if directory matches exclude pattern
-    if (this.matcher.match(filePath, settings.excludeDirs)) {
-      return;
+    if (settings.excludeDirs && settings.excludeDirs.length > 0) {
+      const matcher = new RegExpArray(settings.excludeDirs);
+      if (matcher.test(filePath)) {
+        return;
+      }
     }
     // Recursively process subdirectory
     await this._walk(filePath, basePath, settings, fileCallback, errCallback);
@@ -198,8 +199,11 @@ export class DirWalker {
     errCallback?: ErrorCallback
   ): Promise<void> {
     // Skip if file matches exclude pattern
-    if (this.matcher.match(filePath, settings.excludeExt)) {
-      return;
+    if (settings.excludeExt && settings.excludeExt.length > 0) {
+      const matcher = new RegExpArray(settings.excludeExt);
+      if (matcher.test(filePath)) {
+        return;
+      }
     }
 
     // Increment counter and execute callback for file
