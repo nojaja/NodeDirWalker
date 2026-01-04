@@ -1,6 +1,7 @@
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { RegExpArray } from '@nojaja/greputil';
+import * as PathUtil from '@nojaja/pathutil';
 
 /**
  * Settings for directory walking
@@ -89,7 +90,12 @@ export class DirWalker {
 
       // Process each file
       for (const file of files) {
-        const filePath = path.resolve(targetPath, file);
+        const absoluteFilePath = PathUtil.absolutePath(path.join(targetPath, file));
+        if (!absoluteFilePath) {
+          continue;
+        }
+
+        const filePath = PathUtil.normalizeSeparator(absoluteFilePath) ?? absoluteFilePath;
 
         try {
           await this._processEntry(
@@ -102,7 +108,7 @@ export class DirWalker {
         } catch (error) {
           // Handle file stat errors
           this._handleError(
-            `ファイル処理エラー: ${filePath}`,
+            `Error processing file: ${filePath}`,
             error as Error,
             errCallback
           );
@@ -111,7 +117,7 @@ export class DirWalker {
     } catch (error) {
       // Handle directory read errors
       this._handleError(
-        `ディレクトリ読み取りエラー: ${targetPath}`,
+        `Error reading directory: ${targetPath}`,
         error as Error,
         errCallback
       );
@@ -141,7 +147,7 @@ export class DirWalker {
     // Skip symbolic links to prevent infinite loops
     if (stat.isSymbolicLink()) {
       if (this.debug) {
-        console.debug(`シンボリックリンクをスキップ: ${filePath}`);
+        console.debug(`Skipping symbolic link: ${filePath}`);
       }
       return;// シンボリックリンクは無視する
     }
@@ -174,7 +180,7 @@ export class DirWalker {
     if (settings.excludeDirs && settings.excludeDirs.length > 0) {
       const matcher = new RegExpArray(settings.excludeDirs);
       if (matcher.test(filePath)) {
-        return;
+        return;// Skip directories matching exclude patterns
       }
     }
     // Recursively process subdirectory
@@ -203,14 +209,14 @@ export class DirWalker {
     if (settings.excludeExt && settings.excludeExt.length > 0) {
       const matcher = new RegExpArray(settings.excludeExt);
       if (matcher.test(filePath)) {
-        return;
+        return;// Skip files matching exclude patterns
       }
     }
 
     // Increment counter and execute callback for file
     this.counter++;
     if (this.debug) {
-      console.debug(`ファイル発見: ${filePath}`);
+      console.debug(`file: ${filePath}`);
     }
 
     // Calculate relative path
@@ -220,7 +226,7 @@ export class DirWalker {
       await fileCallback(relativePath, settings);// ファイルならコールバックで通知
     } catch (error) {
       this._handleError(
-        `ファイル処理エラー: ${filePath}`,
+        `Error processing file: ${filePath}`,
         error as Error,
         errCallback
       );

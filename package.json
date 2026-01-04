@@ -1,6 +1,6 @@
 {
   "name": "@nojaja/dirwalker",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A lightweight, flexible directory walker utility for Node.js with pattern matching support",
   "type": "commonjs",
   "main": "dist/dirwalker.bundle.js",
@@ -64,6 +64,6 @@
   },
   "dependencies": {
     "@nojaja/greputil": "^1.0.4",
-    "@nojaja/pathutil": "^1.0.6"
+    "@nojaja/pathutil": "^1.0.9"
   }
 }
